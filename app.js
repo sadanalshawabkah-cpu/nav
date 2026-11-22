@@ -93,6 +93,7 @@ const ICON = {
   arrive: '<path d="M5 12l5 5l10 -10"/>',
   door: '<path d="M14 12v.01"/><path d="M3 21h18"/><path d="M6 21v-16a2 2 0 0 1 2 -2h8a2 2 0 0 1 2 2v16"/>',
   toilet: '<circle cx="8" cy="5" r="2"/><circle cx="16" cy="5" r="2"/><path d="M6 10h4v11"/><path d="M14 10h4l-1 6h-2z"/>',
+  access: '<circle cx="12" cy="4.5" r="1.5"/><path d="M5 8l7 1.5l7 -1.5"/><path d="M12 9.5v4.5l-3 6"/><path d="M12 14l3 6"/>',
   exit: '<path d="M14 8v-2a2 2 0 0 0 -2 -2h-7a2 2 0 0 0 -2 2v12a2 2 0 0 0 2 2h7a2 2 0 0 0 2 -2v-2"/><path d="M9 12h12l-3 -3"/><path d="M18 15l3 -3"/>',
 };
 const icon = (name) =>
@@ -367,6 +368,20 @@ function startPicker() {
   return `<label class="from"><span>I'm here</span><select id="startSel">${opts}</select></label>`;
 }
 
+// Route type sits in the route sheet, next to "I'm here" and Start,
+// so people choose step-free while they set up the route (usability fix 1).
+function routeType() {
+  return `
+    <div class="route-type" role="radiogroup" aria-label="Route type">
+      <button class="seg" role="radio" aria-checked="${state.stepFree}" data-action="set-mode" data-id="stepfree">
+        ${icon("access")}<span><strong>Step-free</strong><small>No stairs, lifts only</small></span>
+      </button>
+      <button class="seg" role="radio" aria-checked="${!state.stepFree}" data-action="set-mode" data-id="fastest">
+        ${icon("stairs")}<span><strong>Fastest</strong><small>May use stairs</small></span>
+      </button>
+    </div>`;
+}
+
 function outageBanner(route) {
   if (state.outages.size === 0) return "";
   const names = [...state.outages].map(label).join(" and ");
@@ -389,6 +404,7 @@ function mapView() {
         <h2 class="sheet-title">Where to?</h2>
         <p class="muted" style="margin:0">Tap any room on the map, or search.</p>
         ${startPicker()}
+        ${routeType()}
       </div>`;
   } else {
     const route = planRoute(state.start, state.dest);
@@ -397,10 +413,6 @@ function mapView() {
       top = `
         <div class="search-box filled">${icon("search")}<span>${label(state.dest)}</span>
           <button class="clear" data-action="clear-dest" aria-label="Clear destination">${icon("x")}</button>
-        </div>
-        <div class="chips" role="group" aria-label="Route type">
-          <button class="chip" aria-pressed="${state.stepFree}" data-action="set-mode" data-id="stepfree">Step-free</button>
-          <button class="chip" aria-pressed="${!state.stepFree}" data-action="set-mode" data-id="fastest">Fastest</button>
         </div>`;
       let meta;
       if (state.start === state.dest) meta = "You're already here.";
@@ -414,6 +426,7 @@ function mapView() {
           ${state.stepFree ? outageBanner(route) : ""}
           <h2 class="sheet-title">${label(state.dest)}</h2>
           ${startPicker()}
+          ${routeType()}
           <p class="meta muted">${meta}</p>
           <button class="btn btn-primary" data-action="start-nav" ${route ? "" : "disabled"}>Start</button>
         </div>`;
