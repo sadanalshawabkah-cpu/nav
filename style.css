@@ -597,6 +597,13 @@ body.navigating .sheet { bottom: 0; padding-bottom: calc(20px + env(safe-area-in
   transition: transform 0.45s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 .notif.show { transform: translate(-50%, 0); }
+
+/* While the notification is open, everything underneath moves down by its
+   height, so headings and the map search stay readable (usability fix 3) */
+:root { --notif-h: 0px; }
+.topbar, .map-top { transition: margin-top 0.45s cubic-bezier(0.2, 0.8, 0.2, 1); }
+body.has-notif .topbar,
+body.has-notif .map-top { margin-top: calc(var(--notif-h) + 12px); }
 .notif-card {
   padding: 14px 16px;
   border-radius: 22px;
@@ -767,6 +774,7 @@ html[data-transition="update"]::view-transition-new(page) { animation: fade-in 2
    Respect "reduce motion": no movement, just instant changes
    ========================================================= */
 @media (prefers-reduced-motion: reduce) {
+  .topbar, .map-top { transition: none; }
   *, *::before, *::after { animation: none !important; transition: none !important; }
   ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) { animation: none !important; }
 }

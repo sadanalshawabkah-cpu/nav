@@ -801,10 +801,15 @@ function showNotification() {
     </div>`;
   state.alertsUnread = true;
   render();
+  // Make room for the card so it pushes the page down instead of
+  // covering the heading underneath it (usability fix 3)
+  document.documentElement.style.setProperty("--notif-h", el.offsetHeight + "px");
+  document.body.classList.add("has-notif");
   requestAnimationFrame(() => el.classList.add("show"));
 }
 function hideNotification() {
   document.getElementById("notif").classList.remove("show");
+  document.body.classList.remove("has-notif");
 }
 
 let toastTimer;
